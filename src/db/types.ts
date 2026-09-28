@@ -423,6 +423,38 @@ export interface RestaurantSettings {
   maxDiscountPercent: number;
   defaultDeliveryFee: number;
   receiptFooterMessage: string;
+
+  // Thermal Receipt Header Customization
+  logoUrl?: string;
+  showLogo?: boolean;
+  receiptHeaderMessage?: string;
+  taxId?: string; // NIF: Numéro d'Identification Fiscale
+  commercialRegister?: string; // RC: Registre de Commerce
+  statisticalId?: string; // NIS: Numéro d'Identification Statistique
+  articleNumber?: string; // ART: Numéro d'Article d'Imposition
+  showTaxId?: boolean;
+
+  // Thermal Receipt Content & Details
+  showCashierName?: boolean;
+  showCustomerInfo?: boolean;
+  showTableInfo?: boolean;
+  showOrderType?: boolean;
+  showItemAddons?: boolean;
+  showItemNotes?: boolean;
+  showPaymentBreakdown?: boolean;
+
+  // Thermal Receipt Footer Customization
+  showWifiInfo?: boolean;
+  wifiSsid?: string;
+  wifiPassword?: string;
+  showSocialMedia?: boolean;
+  socialHandle?: string;
+  showReturnPolicy?: boolean;
+  returnPolicyText?: string;
+  showBarcode?: boolean;
+  showQrCode?: boolean;
+  qrCodeUrl?: string;
+  receiptFontDensity?: 'comfortable' | 'normal' | 'compact';
 }
 
 export interface BackupMetadata {

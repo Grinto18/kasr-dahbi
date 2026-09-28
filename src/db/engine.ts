@@ -35,7 +35,9 @@ import {
   type WasteRecord,
 } from './types.ts';
 
-const DATA_DIR = path.resolve(process.cwd(), 'data');
+const DATA_DIR = process.env.POS_DATA_DIR
+  ? path.resolve(process.env.POS_DATA_DIR)
+  : path.resolve(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'golden_palace_db.json');
 
 function uid(prefix: string): string {
@@ -480,8 +482,8 @@ export function createInitialSeedState(): PosDatabaseState {
   const settings: RestaurantSettings = {
     restaurantName: 'القصر الذهبي',
     brandTitle: 'عند الجيجلي • حسين داي',
-    address: 'شارع بلهوشات، حسين داي، الجزائر',
-    landmark: 'بجانب فندق Oasis',
+    address: 'شارع بلهوشات، حسين داي، الجزائر العاصمة',
+    landmark: 'بجانب فندق Oasis ومحطة المترو',
     phone: '0791755614',
     currency: 'DZD',
     language: 'ar',
@@ -490,11 +492,40 @@ export function createInitialSeedState(): PosDatabaseState {
     receiptSize: '80mm',
     printerName: 'Epson TM-T20III Thermal',
     autoPrintReceipt: false,
-    taxEnabled: false,
+    taxEnabled: true,
     taxRatePercent: 9,
     maxDiscountPercent: 25,
     defaultDeliveryFee: 200,
-    receiptFooterMessage: 'شكرًا لزيارتكم لمطعم القصر الذهبي — عند الجيجلي • حسين داي. يسعدنا استقبالكم دائمًا!',
+    receiptFooterMessage: 'شكرًا لزيارتكم لمطعم القصر الذهبي — عند الجيجلي • صحة وهنا!',
+
+    showLogo: true,
+    logoUrl: '',
+    receiptHeaderMessage: 'أهلاً وسهلاً بكم في مطعم القصر الذهبي • مأكولات تقليدية ومشاوي على الجمر',
+    taxId: '001916012345678',
+    commercialRegister: '16/00-1234567A20',
+    statisticalId: '099016123456789',
+    articleNumber: '16120034567',
+    showTaxId: true,
+
+    showCashierName: true,
+    showCustomerInfo: true,
+    showTableInfo: true,
+    showOrderType: true,
+    showItemAddons: true,
+    showItemNotes: true,
+    showPaymentBreakdown: true,
+
+    showWifiInfo: true,
+    wifiSsid: 'GoldenPalace-Guest',
+    wifiPassword: 'palace2026',
+    showSocialMedia: true,
+    socialHandle: '@goldenpalace.dz',
+    showReturnPolicy: true,
+    returnPolicyText: 'المأكولات والمشروبات غير قابلة للإرجاع بعد الاستلام • الرجاء الاحتفاظ بالوصل',
+    showBarcode: true,
+    showQrCode: true,
+    qrCodeUrl: 'https://goldenpalace.dz',
+    receiptFontDensity: 'normal',
   };
 
   return {
@@ -539,7 +570,7 @@ export class PosDatabaseEngine {
   private state: PosDatabaseState;
   private persistToDisk: boolean;
 
-  constructor(persistToDisk = true) {
+  constructor(persistToDisk = process.env.VITEST !== 'true') {
     this.persistToDisk = persistToDisk;
     if (this.persistToDisk) {
       try {

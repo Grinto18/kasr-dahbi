@@ -8,6 +8,7 @@ import {
   LogOut,
   Menu,
   Package,
+  Printer,
   RefreshCw,
   Settings,
   ShoppingBag,
@@ -37,6 +38,7 @@ import {
   EmployeesSettingsBackupView,
   ReportsAnalyticsView,
 } from './pages/FinanceAndAdminPage.tsx';
+import { ReceiptConfigPage } from './pages/ReceiptConfigPage.tsx';
 import { PWAInstallButton } from './components/ReceiptPrinterModal.tsx';
 
 interface NavItem {
@@ -124,6 +126,7 @@ const MainWorkspace: React.FC = () => {
     { id: 'cash', label: 'الصندوق والورديات', icon: Wallet, permission: 'cash:manage' },
     { id: 'customers', label: 'العملاء والمصاريف', icon: Users, permission: 'customers:manage' },
     { id: 'reports', label: 'التقارير والأرباح', icon: BarChart3, permission: 'reports:view' },
+    { id: 'receipt_config', label: 'تخصيص الفاتورة والوصل', icon: Printer, permission: 'employees:manage' },
     { id: 'admin', label: 'الإعدادات والنسخ الاحتياطي', icon: Settings, permission: 'employees:manage' },
   ].filter((item) => can(item.permission));
 
@@ -390,6 +393,7 @@ const MainWorkspace: React.FC = () => {
           {activeTab === 'cash' && <CashRegisterView />}
           {activeTab === 'customers' && <CustomersExpensesView />}
           {activeTab === 'reports' && <ReportsAnalyticsView />}
+          {activeTab === 'receipt_config' && <ReceiptConfigPage />}
           {activeTab === 'admin' && <EmployeesSettingsBackupView />}
         </main>
       </div>

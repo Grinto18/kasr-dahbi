@@ -762,29 +762,40 @@ export function createPosExpressApp() {
   return app;
 }
 
-async function startServer() {
+export async function startServer(customPort?: number, customDistPath?: string) {
   const app = createPosExpressApp();
+  const listenPort = customPort || PORT;
 
-  if (process.env.NODE_ENV !== 'production') {
-    const { createServer: createViteServer } = await import('vite');
+  if (process.env.NODE_ENV !== 'production' && !process.env.IS_ELECTRON) {
+    const vitePkg = 'vite';
+    const { createServer: createViteServer } = await import(vitePkg);
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), 'dist');
+    const distPath = customDistPath || path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (_req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Golden Palace POS Server running on http://0.0.0.0:${PORT}`);
+  return new Promise<{ server: any; port: number }>((resolve, reject) => {
+    const srv = app.listen(listenPort, '127.0.0.1', () => {
+      const addr = srv.address();
+      const actualPort = typeof addr === 'object' && addr ? addr.port : listenPort;
+      console.log(`Golden Palace POS Server running on http://127.0.0.1:${actualPort}`);
+      resolve({ server: srv, port: actualPort });
+    });
+    srv.on('error', (err) => {
+      console.error('Server listen error:', err);
+      reject(err);
+    });
   });
 }
 
-if (process.env.VITEST !== 'true') {
+if (process.env.VITEST !== 'true' && !process.env.IS_ELECTRON) {
   startServer();
 }

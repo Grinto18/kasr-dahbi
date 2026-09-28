@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   ArrowDownCircle,
   ArrowUpCircle,
@@ -26,6 +26,7 @@ import {
 import { usePos } from '../context/PosContext.tsx';
 import { ExpenseCategory, RoleCode, User } from '../db/types.ts';
 import { syncSnapshotToFirestore } from '../lib/firebase.ts';
+import { ReceiptConfigPage } from './ReceiptConfigPage.tsx';
 
 const EXPENSE_CATEGORIES_AR: Record<ExpenseCategory, string> = {
   Electricity: 'كهرباء (Electricity)',
@@ -888,7 +889,9 @@ export const EmployeesSettingsBackupView: React.FC = () => {
     addNotification,
   } = usePos();
 
-  const [subTab, setSubTab] = useState<'EMPLOYEES' | 'SETTINGS' | 'BACKUPS' | 'AUDIT'>('EMPLOYEES');
+  const [subTab, setSubTab] = useState<
+    'EMPLOYEES' | 'SETTINGS' | 'RECEIPT_CONFIG' | 'BACKUPS' | 'AUDIT'
+  >('EMPLOYEES');
 
   // New User Form
   const [newUsername, setNewUsername] = useState('');
@@ -899,6 +902,28 @@ export const EmployeesSettingsBackupView: React.FC = () => {
 
   // Settings Form
   const [formSettings, setFormSettings] = useState(settings);
+  const [systemPrinters, setSystemPrinters] = useState<Array<{ name: string; displayName: string; isDefault: boolean }>>([]);
+  const [isRefreshingPrinters, setIsRefreshingPrinters] = useState(false);
+
+  const fetchSystemPrinters = async () => {
+    const electronPos = (window as any).electronPos;
+    if (!electronPos?.getPrinters) return;
+    setIsRefreshingPrinters(true);
+    try {
+      const list = await electronPos.getPrinters();
+      setSystemPrinters(list);
+    } catch (err) {
+      console.warn('Could not list system printers:', err);
+    } finally {
+      setIsRefreshingPrinters(false);
+    }
+  };
+
+  useEffect(() => {
+    if (subTab === 'SETTINGS') {
+      fetchSystemPrinters();
+    }
+  }, [subTab]);
 
   // Restore Confirmation State
   const [restoreConfirmBackupId, setRestoreConfirmBackupId] = useState<string | null>(null);
@@ -1032,7 +1057,18 @@ export const EmployeesSettingsBackupView: React.FC = () => {
                 : 'bg-black/40 text-neutral-300 border-white/10'
             }`}
           >
-            إعدادات المطعم والطباعة
+            إعدادات المطعم والنظام
+          </button>
+          <button
+            type="button"
+            onClick={() => setSubTab('RECEIPT_CONFIG')}
+            className={`px-4 py-2 rounded-lg text-xs font-bold border ${
+              subTab === 'RECEIPT_CONFIG'
+                ? 'bg-[#D4AF37] text-black border-[#D4AF37]'
+                : 'bg-black/40 text-neutral-300 border-white/10'
+            }`}
+          >
+            تخصيص الفاتورة والإيصال (Receipt)
           </button>
           <button
             type="button"
@@ -1251,6 +1287,43 @@ export const EmployeesSettingsBackupView: React.FC = () => {
               </select>
             </div>
             <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs text-neutral-400 block">طابعة الإيصالات المحددة (Windows)</label>
+                {systemPrinters.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={fetchSystemPrinters}
+                    disabled={isRefreshingPrinters}
+                    className="text-[10px] text-[#D4AF37] hover:underline"
+                  >
+                    {isRefreshingPrinters ? 'جاري التحديث...' : 'تحديث القائمة'}
+                  </button>
+                )}
+              </div>
+              {systemPrinters.length > 0 ? (
+                <select
+                  value={formSettings.printerName || ''}
+                  onChange={(e) => setFormSettings({ ...formSettings, printerName: e.target.value })}
+                  className="w-full rounded-lg bg-black/50 border border-white/15 px-3 py-2 text-xs text-white"
+                >
+                  <option value="">(طابعة النظام الافتراضية)</option>
+                  {systemPrinters.map((p) => (
+                    <option key={p.name} value={p.name}>
+                      {p.displayName || p.name} {p.isDefault ? '⭐ [افتراضية]' : ''}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  value={formSettings.printerName || ''}
+                  onChange={(e) => setFormSettings({ ...formSettings, printerName: e.target.value })}
+                  placeholder="مثال: POS-80C أو XP-58 أو اتركها فارغة للافتراضية"
+                  className="w-full rounded-lg bg-black/50 border border-white/15 px-3 py-2 text-xs text-white font-mono"
+                />
+              )}
+            </div>
+            <div>
               <label className="text-xs text-neutral-400 block mb-1">رسوم التوصيل الافتراضية (د.ج)</label>
               <input
                 type="number"
@@ -1294,6 +1367,9 @@ export const EmployeesSettingsBackupView: React.FC = () => {
           </button>
         </form>
       )}
+
+      {/* 2.5. RECEIPT CUSTOMIZATION & PREVIEW */}
+      {subTab === 'RECEIPT_CONFIG' && <ReceiptConfigPage />}
 
       {/* 3. BACKUPS & RESTORE */}
       {subTab === 'BACKUPS' && (
