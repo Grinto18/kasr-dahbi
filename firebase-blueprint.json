@@ -1,0 +1,139 @@
+{
+  "entities": {
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Trusted administrator membership document keyed by Firebase Auth UID.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Firebase Auth UID of the administrator"
+        },
+        "email": {
+          "type": "string",
+          "maxLength": 256,
+          "description": "Verified administrator email address"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["ADMIN", "MANAGER", "CASHIER", "WAITER", "KITCHEN", "INVENTORY"],
+          "maxLength": 32,
+          "description": "Assigned POS role"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation"
+        }
+      },
+      "required": ["uid", "email", "role", "createdAt"]
+    },
+    "PosSnapshot": {
+      "title": "PosSnapshot",
+      "description": "Synchronized POS state snapshot document per authenticated user or restaurant node.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "UID of the authenticated user who owns or synced the snapshot"
+        },
+        "snapshotType": {
+          "type": "string",
+          "enum": ["STATE_SYNC", "BACKUP", "AUDIT_CHECKPOINT"],
+          "maxLength": 32,
+          "description": "Type of snapshot record"
+        },
+        "version": {
+          "type": "number",
+          "description": "Monotonic version number"
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Human-readable summary of the snapshot"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation server timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update server timestamp"
+        }
+      },
+      "required": ["ownerId", "snapshotType", "version", "summary", "createdAt", "updatedAt"]
+    },
+    "PosOrderCloud": {
+      "title": "PosOrderCloud",
+      "description": "Cloud-replicated restaurant order record for Golden Palace POS.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Firebase UID of the staff member who synced the order"
+        },
+        "orderNumber": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Unique human-readable invoice number"
+        },
+        "orderType": {
+          "type": "string",
+          "enum": ["DINE_IN", "TAKEAWAY", "DELIVERY"],
+          "maxLength": 32,
+          "description": "Order fulfillment channel"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["NEW", "CONFIRMED", "PREPARING", "READY", "OUT_FOR_DELIVERY", "DELIVERED", "COMPLETED", "CANCELLED", "HELD"],
+          "maxLength": 32,
+          "description": "Current order lifecycle state"
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "Final order amount in DZD"
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Unique idempotency key preventing duplicate offline syncs"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of update"
+        }
+      },
+      "required": ["ownerId", "orderNumber", "orderType", "status", "totalAmount", "idempotencyKey", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/admins/{adminId}": {
+      "schema": { "$ref": "#/entities/AdminUser" },
+      "description": "Trusted administrator registry keyed by Firebase UID"
+    },
+    "/pos_snapshots/{snapshotId}": {
+      "schema": { "$ref": "#/entities/PosSnapshot" },
+      "description": "Cloud state sync and backup metadata records"
+    },
+    "/pos_orders/{orderId}": {
+      "schema": { "$ref": "#/entities/PosOrderCloud" },
+      "description": "Cloud-replicated POS orders with idempotency protection"
+    }
+  }
+}

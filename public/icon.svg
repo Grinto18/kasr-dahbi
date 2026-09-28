@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F3E5AB" />
+      <stop offset="50%" stop-color="#D4AF37" />
+      <stop offset="100%" stop-color="#996515" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="#0B0B0E" />
+  <rect x="28" y="28" width="456" height="456" rx="76" fill="none" stroke="url(#goldGrad)" stroke-width="6" opacity="0.85" />
+  <!-- Crown / Palace Arch Icon -->
+  <path d="M128 340 L156 196 L216 252 L256 156 L296 252 L356 196 L384 340 Z" fill="url(#goldGrad)" />
+  <rect x="128" y="356" width="256" height="24" rx="8" fill="url(#goldGrad)" />
+  <circle cx="156" cy="172" r="14" fill="#F3E5AB" />
+  <circle cx="256" cy="132" r="16" fill="#F3E5AB" />
+  <circle cx="356" cy="172" r="14" fill="#F3E5AB" />
+  <text x="256" y="430" font-family="Cairo, sans-serif" font-size="36" font-weight="700" fill="#F3E5AB" text-anchor="middle">القصر الذهبي</text>
+</svg>

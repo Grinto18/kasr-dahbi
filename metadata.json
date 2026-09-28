@@ -1,0 +1,6 @@
+{
+  "name": "Golden Palace POS - القصر الذهبي",
+  "description": "نظام نقاط بيع وإدارة مطعم القصر الذهبي (عند الجيجلي • حسين داي) الشامل مع دعم الكاشير، الطاولات، شاشة المطبخ KDS، المخزون والوصفات، الصندوق، التقارير، والعمل بدون إنترنت PWA.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
